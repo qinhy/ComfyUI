@@ -268,6 +268,7 @@ class OpenaiChatCompletion:
         return {
                 "required": {
                     # "prompt": ("TEXT", {"input_format": {"text": "STRING"}}),
+                    "key": ("STRING", {"default": "xxxxxxxxxxxxxxx"}),
                     "model": ("STRING", {"default": "gpt-3.5-turbo"}),
                     "messages": ("STRING", {"forceInput": True}),
                 },
@@ -293,15 +294,20 @@ class OpenaiChatCompletion:
     RETURN_TYPES = ("STRING",)
     CATEGORY = "GPT"
     FUNCTION = "execute"
+
+    def _filternull(self,d):
+        return { k:v for k,v in d.items() if len(v)>0}
     
-    def execute(self,model,messages=None,name="gpt"):
-        import json
+    def execute(self,key,model,messages=None,name="gpt"):
+        import json,openai
+        openai.api_key = key
         if messages is None:messages = []
         res = {
             'model':model,
-            'messages':[json.loads(m.replace("'",'"')) for m in messages.split('\n,\n') if len(m)>0]
+            'messages':[self._filternull(json.loads(m.replace("'",'"'))) for m in messages.split('\n,\n') if len(m)>0]
         }
-        return (str(res),)
+        response = openai.ChatCompletion.create(**res)
+        return (str(response),)
     # FUNCTION = "generate_text"    
     # def generate_text(self,url, model_name, prompt, max_new_tokens, temperature, top_p, typical_p, repetition_penalty, encoder_repetition_penalty, top_k, min_length, no_repeat_ngram_size, num_beams, penalty_alpha, length_penalty, seed):
     #     self.sever = url
