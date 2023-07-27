@@ -265,9 +265,11 @@ class OpenaiChatMergeMessage:
 class OpenaiChatCompletion:    
     @classmethod
     def INPUT_TYPES(cls):
+        import openai
         return {
                 "required": {
                     # "prompt": ("TEXT", {"input_format": {"text": "STRING"}}),
+                    "url": ("STRING", {"default": openai.api_base}),
                     "key": ("STRING", {"default": "xxxxxxxxxxxxxxx"}),
                     "model": ("STRING", {"default": "gpt-3.5-turbo"}),
                     "messages": ("STRING", {"forceInput": True}),
@@ -298,9 +300,10 @@ class OpenaiChatCompletion:
     def _filternull(self,d):
         return { k:v for k,v in d.items() if len(v)>0}
     
-    def execute(self,key,model,messages=None,name="gpt"):
+    def execute(self,url,key,model,messages=None,name="gpt"):
         import json,openai
         openai.api_key = key
+        openai.api_base = url
         if messages is None:messages = []
         res = {
             'model':model,
