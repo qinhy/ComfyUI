@@ -16,8 +16,9 @@ class ShowText:
     def notify(self, text):
         import json
         try:
-            res = json.loads(text[0], indent=2)
-            text = (str(res),)
+            res = json.loads(text[0])
+            text = json.dumps(res, ensure_ascii=False, indent=2)
+            text = (text,)
         except Exception as e :
             print(e)
         return {"ui": {"text": text}, "result": (text,)}
